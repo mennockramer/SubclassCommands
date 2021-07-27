@@ -2,7 +2,7 @@
 Executes user-specified commands based on their currently equipped Destiny 2 subclass.
 
 Planned features:
-- Config file, with entries for each element, where user-sepcifed commands go.
+- Config file, with entries for each element, where user-specifed commands go.
 - Option to only run while destiny2.exe is running.
 
 Example use cases:
