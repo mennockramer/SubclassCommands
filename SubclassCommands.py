@@ -3,17 +3,23 @@ import webview
 import time
 import threading
 import concurrent.futures
+import multiprocessing
+import datetime
 
 #Application API keys go here, remove for GitHub
-apiKey ='173e93eb88604e8a96a2e4f85d4548ed'
-clientID = "37211"
-clientSecret = "P1KPzCPrNatEekBHvBImxPhnkVCv-lqoCVA7VRCqNGc"
+
 
 accessToken = ""
 refreshToken = ""
 membershipID=""
 
-HEADERS = {"X-API-Key":apiKey}
+accessTokenExpiry = datetime.datetime.now()
+
+subclassCheckInterval = 10
+
+tokenLock = threading.Lock() 
+
+
 
 tokenUrl = "https://www.bungie.net/Platform/App/OAuth/Token/"
 
@@ -33,39 +39,90 @@ def auth_code_watcher(window):
    
     
 def new_authentication():
+   
     #creates and starts a browser window for user input for authentication
     authWindow = webview.create_window('Bungie Authentication', 'https://www.bungie.net/en/OAuth/Authorize?client_id='+clientID+'&response_type=code')
     webview.start(func=auth_code_watcher, args=authWindow)
 
-   
+
     accessTokenData = {'grant_type': 'authorization_code', 'code': authCode}
-    accessTokenResponseRaw = requests.post(tokenUrl, data=accessTokenData , auth=(clientID, clientSecret))
+    accessTokenResponseRaw = requests.post(tokenUrl, data=accessTokenData , auth=(clientID, clientSecret), headers = {"X-API-Key":apiKey})
     
     accessTokenResponse = accessTokenResponseRaw.json()
     
-    global accessToken, refreshToken, membershipID
+    global accessToken, refreshToken, membershipID, accessTokenExpiry
     accessToken = accessTokenResponse['access_token']
     refreshToken = accessTokenResponse['refresh_token']
     membershipID= accessTokenResponse['membership_id']
 
-def access_token_timer():
-    while True:
-        time.sleep(3500)
-        renew_access_token()
+    accessTokenExpiry = datetime.datetime.now() + datetime.timedelta(accessTokenResponse['expires_in']) 
+
+    tokenFile = open("SubclassCommandsTokens.txt", "w")
+    tokenFile.write(accessToken+"\n"+refreshToken)
+    tokenFile.close()
+
+
 
 
 def renew_access_token():
+    with tokenLock:
+        global accessToken, refreshToken, membershipID, accessTokenExpiry
+        refreshTokenData = {'grant_type': 'refresh_token', 'refresh_token': refreshToken}
+        refreshTokenResponseRaw = requests.post(tokenUrl, data=refreshTokenData , auth=(clientID, clientSecret), headers = {"X-API-Key":apiKey})
+        refreshTokenResponse = refreshTokenResponseRaw.json()
+        
+        try:
+            accessToken = refreshTokenResponse['access_token']
+            refreshToken = refreshTokenResponse['refresh_token']
+            membershipID= refreshTokenResponse['membership_id']
 
-    global accessToken, refreshToken, membershipID
-    refreshTokenData = {'grant_type': 'refresh_token', 'refresh_token': refreshToken}
-    refreshTokenResponseRaw = requests.post(tokenUrl, data=refreshTokenData , auth=(clientID, clientSecret))
-    refreshTokenResponse = refreshTokenResponseRaw.json()
-    
-    accessToken = refreshTokenResponse['access_token']
-    refreshToken = refreshTokenResponse['refresh_token']
-    membershipID= refreshTokenResponse['membership_id']
+            accessTokenExpiry = datetime.datetime.now() + datetime.timedelta(refreshTokenResponse['expires_in']) 
+
+            tokenFile = open("SubclassCommandsTokens.txt", "w")
+            tokenFile.write(accessToken+"\n"+refreshToken)
+            tokenFile.close()
+        except KeyError:
+            new_authentication()
 
 
-#attempt to read tokens from file, if fail, new_authentication()
+def subclass_checker():
+    #api call
+    subclassResponseRaw = requests.get("https://www.bungie.net/Platform/Destiny2/3/Profile/###MEMBERSHIPID###/?components=CharacterEquipment", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
+    subclassResponse = subclassResponseRaw.json()
+    print(subclassResponse)
 
-#if 
+
+
+
+#try to load tokens from file
+try:
+    tokenFile = open("SubclassCommandsTokens.txt", "r")
+    tokenList = tokenFile.read().splitlines()
+    accessToken = tokenList[0]
+    refreshToken = tokenList[1]
+
+    #print("Stored Access Token: "+accessToken)
+    #print("Stored Refresh Token: "+refreshToken)
+    renew_access_token()
+except FileNotFoundError:
+    tokenFile = open("SubclassCommandsTokens.txt", "x")
+    print("SubclassCommandsTokens.txt not found, creating a new one")
+    new_authentication()
+
+#print("Continuing with AT: "+accessToken)
+#print("Continuing with RT: "+refreshToken)
+
+
+# while true
+# if AT expired, refresh
+# check subclass
+# sleep
+
+while True:
+    if datetime.datetime.now() > accessTokenExpiry:
+        renew_access_token()
+
+    subclass_checker()
+    time.sleep(subclassCheckInterval)
+
+
