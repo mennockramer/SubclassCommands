@@ -11,7 +11,9 @@ import datetime
 
 accessToken = ""
 refreshToken = ""
-membershipID=""
+bungieMembershipID = ""
+destinyMembershipID = ""
+destinyMembershipType = ""
 
 accessTokenExpiry = datetime.datetime.now()
 
@@ -50,10 +52,10 @@ def new_authentication():
     
     accessTokenResponse = accessTokenResponseRaw.json()
     
-    global accessToken, refreshToken, membershipID, accessTokenExpiry
+    global accessToken, refreshToken, bungieMembershipID, accessTokenExpiry
     accessToken = accessTokenResponse['access_token']
     refreshToken = accessTokenResponse['refresh_token']
-    membershipID= accessTokenResponse['membership_id']
+    bungieMembershipID= accessTokenResponse['membership_id']
 
     accessTokenExpiry = datetime.datetime.now() + datetime.timedelta(accessTokenResponse['expires_in']) 
 
@@ -66,7 +68,7 @@ def new_authentication():
 
 def renew_access_token():
     with tokenLock:
-        global accessToken, refreshToken, membershipID, accessTokenExpiry
+        global accessToken, refreshToken, bungieMembershipID, accessTokenExpiry
         refreshTokenData = {'grant_type': 'refresh_token', 'refresh_token': refreshToken}
         refreshTokenResponseRaw = requests.post(tokenUrl, data=refreshTokenData , auth=(clientID, clientSecret), headers = {"X-API-Key":apiKey})
         refreshTokenResponse = refreshTokenResponseRaw.json()
@@ -74,7 +76,7 @@ def renew_access_token():
         try:
             accessToken = refreshTokenResponse['access_token']
             refreshToken = refreshTokenResponse['refresh_token']
-            membershipID= refreshTokenResponse['membership_id']
+            bungieMembershipID= refreshTokenResponse['membership_id']
 
             accessTokenExpiry = datetime.datetime.now() + datetime.timedelta(refreshTokenResponse['expires_in']) 
 
@@ -86,12 +88,24 @@ def renew_access_token():
 
 
 def subclass_checker():
-    #api call
-    subclassResponseRaw = requests.get("https://www.bungie.net/Platform/Destiny2/3/Profile/###MEMBERSHIPID###/?components=CharacterEquipment", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
-    subclassResponse = subclassResponseRaw.json()
-    print(subclassResponse)
+    
+    responseCharacterEquipmentRaw = requests.get("https://www.bungie.net/Platform/Destiny2/"+destinyMembershipType+"/Profile/"+destinyMembershipID+"/?components=CharacterEquipment", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
+    responseCharacterEquipment = responseCharacterEquipmentRaw.json()
+    #print(responseCharacterEquipment)
 
+    responseCharactersRaw = requests.get("https://www.bungie.net/Platform/Destiny2/"+destinyMembershipType+"/Profile/"+destinyMembershipID+"/?components=Characters", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
+    responseCharacters = responseCharactersRaw.json()
+    #print(responseCharacters['Response']['characters']['data'])
 
+    # determine most recent character
+    mostRecentCharacterDatetime = datetime.datetime.fromtimestamp(0)
+    mostRecentCharacter =""
+    for character in responseCharacters['Response']['characters']['data']:
+        if datetime.datetime.strptime(responseCharacters['Response']['characters']['data'][character]['dateLastPlayed'],'%Y-%m-%dT%H:%M:%SZ') > mostRecentCharacterDatetime:
+            mostRecentCharacterDatetime = datetime.datetime.strptime(responseCharacters['Response']['characters']['data'][character]['dateLastPlayed'],'%Y-%m-%dT%H:%M:%SZ')
+            mostRecentCharacter = character
+
+    print(mostRecentCharacter)
 
 
 #try to load tokens from file
@@ -111,6 +125,23 @@ except FileNotFoundError:
 
 #print("Continuing with AT: "+accessToken)
 #print("Continuing with RT: "+refreshToken)
+
+# get destinyMembershipID for the bungieMembershipID
+responseLinkedProfilesRaw = requests.get("https://www.bungie.net/Platform/Destiny2/3/Profile/"+bungieMembershipID+"/LinkedProfiles/?=getAllMemberships", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
+responseLinkedProfiles = responseLinkedProfilesRaw.json()
+
+
+# determine most recent profile
+mostRecentProfileDatetime = datetime.datetime.fromtimestamp(0)
+mostRecentProfile =""
+for profile in responseLinkedProfiles['Response']['profiles']:
+    if datetime.datetime.strptime(profile['dateLastPlayed'],'%Y-%m-%dT%H:%M:%SZ') > mostRecentProfileDatetime:
+        mostRecentProfileDatetime = datetime.datetime.strptime(profile['dateLastPlayed'],'%Y-%m-%dT%H:%M:%SZ')
+        mostRecentProfile = profile
+
+
+destinyMembershipID = str(mostRecentProfile['membershipId'])
+destinyMembershipType = str(mostRecentProfile['membershipType'])
 
 
 # while true
