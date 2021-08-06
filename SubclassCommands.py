@@ -7,13 +7,34 @@ import multiprocessing
 import datetime
 
 #Application API keys go here, remove for GitHub
-
+apiKey ='173e93eb88604e8a96a2e4f85d4548ed'
+clientID = "37211"
+clientSecret = "P1KPzCPrNatEekBHvBImxPhnkVCv-lqoCVA7VRCqNGc"
 
 accessToken = ""
 refreshToken = ""
 bungieMembershipID = ""
 destinyMembershipID = ""
 destinyMembershipType = ""
+
+subclassDict = {
+    3382391785:'Sentinel',
+    2958378809:'Striker',
+    3105935002:'Sunbreaker',
+    613647804:'Behemoth',
+
+    1334959255:'Arcstrider',
+    3635991036:'Gunslinger',
+    3225959819:'Nightstalker',
+    873720784:'Revenant',
+
+    3481861797:'Dawnblade',
+    1751782730:'Stormcaller',
+    3887892656:'Voidwalker',
+    3291545503:'Shadebinder',
+
+}
+
 
 accessTokenExpiry = datetime.datetime.now()
 
@@ -89,10 +110,6 @@ def renew_access_token():
 
 def subclass_checker():
     
-    responseCharacterEquipmentRaw = requests.get("https://www.bungie.net/Platform/Destiny2/"+destinyMembershipType+"/Profile/"+destinyMembershipID+"/?components=CharacterEquipment", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
-    responseCharacterEquipment = responseCharacterEquipmentRaw.json()
-    #print(responseCharacterEquipment)
-
     responseCharactersRaw = requests.get("https://www.bungie.net/Platform/Destiny2/"+destinyMembershipType+"/Profile/"+destinyMembershipID+"/?components=Characters", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
     responseCharacters = responseCharactersRaw.json()
     #print(responseCharacters['Response']['characters']['data'])
@@ -103,10 +120,26 @@ def subclass_checker():
     for character in responseCharacters['Response']['characters']['data']:
         if datetime.datetime.strptime(responseCharacters['Response']['characters']['data'][character]['dateLastPlayed'],'%Y-%m-%dT%H:%M:%SZ') > mostRecentCharacterDatetime:
             mostRecentCharacterDatetime = datetime.datetime.strptime(responseCharacters['Response']['characters']['data'][character]['dateLastPlayed'],'%Y-%m-%dT%H:%M:%SZ')
-            mostRecentCharacter = character
+            mostRecentCharacter = str(character)
 
-    print(mostRecentCharacter)
+      
+    responseCharacterEquipmentRaw = requests.get("https://www.bungie.net/Platform/Destiny2/"+destinyMembershipType+"/Profile/"+destinyMembershipID+"/Character/"+mostRecentCharacter+"?components=CharacterEquipment", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
+    responseCharacterEquipment = responseCharacterEquipmentRaw.json()
+    #print(responseCharacterEquipment)
 
+    subclassHash =""
+    for item in responseCharacterEquipment['Response']['equipment']['data']['items']:
+        
+        if item['bucketHash'] == 3284755031:
+            subclassHash = item['itemHash']  # InventoryBucket "Subclass" hash = 328755031
+            print("Subclass found, hash: "+str(subclassHash))
+
+
+    print(subclassDict[subclassHash])
+
+   
+
+### End of methods ###
 
 #try to load tokens from file
 try:
@@ -127,7 +160,7 @@ except FileNotFoundError:
 #print("Continuing with RT: "+refreshToken)
 
 # get destinyMembershipID for the bungieMembershipID
-responseLinkedProfilesRaw = requests.get("https://www.bungie.net/Platform/Destiny2/3/Profile/"+bungieMembershipID+"/LinkedProfiles/?=getAllMemberships", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
+responseLinkedProfilesRaw = requests.get("https://www.bungie.net/Platform/Destiny2/254/Profile/"+bungieMembershipID+"/LinkedProfiles", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
 responseLinkedProfiles = responseLinkedProfilesRaw.json()
 
 
