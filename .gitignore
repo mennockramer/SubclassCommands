@@ -2,3 +2,6 @@ SubclassCommandsTokens.txt
 SubclassCommandsConfig.json
 *.bat
 *.sh
+__pycache__/
+build/
+SubclassCommands.spec
