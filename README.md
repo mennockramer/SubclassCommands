@@ -8,7 +8,6 @@ Features:
 
 
 Planned features:
-- Checking for Arc.bat or Arc.sh (and other elements, or per subclass, as above) in relative root ~~or user-specifed dir, in lieu of config specification~~ as a config option
 - Option to only run while destiny2.exe is running.
 
 Example use cases:
