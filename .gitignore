@@ -1,2 +1,4 @@
 SubclassCommandsTokens.txt
 SubclassCommandsConfig.json
+*.bat
+*.sh
