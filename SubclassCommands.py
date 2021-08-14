@@ -162,15 +162,24 @@ def subclass_checker():
 
 ### main execution flow below ###
 
-#try to load config (if fail, create default and restart)
+#try to load config (if fail, create default and load that)
 try:
     configFile = open("SubclassCommandsConfig.json", "r")
     config = json.load(configFile)
-    print(config)
+    #print(config)
 
 except FileNotFoundError:
-    print("Config file not found, generating a new one.")
+    print("Config file not found, downloading default from git.")
+   
+    defaultConfigFileResponse = requests.get("https://raw.githubusercontent.com/mennockramer/SubclassCommands/main/SubclassCommandsConfig-DEFAULT.json")
+    
 
+    configFile = open("SubclassCommandsConfig.json", "x")
+    configFile.write(defaultConfigFileResponse.text)
+
+    configFile = open("SubclassCommandsConfig.json", "r")
+    config = json.load(configFile)
+    #print(config)
 
 #try to load tokens from file
 try:
