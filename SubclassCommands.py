@@ -35,6 +35,27 @@ subclassDict = {
     3291545503:'shadebinder',
 
 }
+
+elementDict = {
+   
+    2958378809:'arc',
+    3105935002:'solar',
+    3382391785:'void',
+    613647804:'stasis',
+
+    1334959255:'arc',
+    3635991036:'solar',
+    3225959819:'void',
+    873720784:'stasis',
+    
+    1751782730:'arc',
+    3481861797:'solar',
+    3887892656:'void',
+    3291545503:'stasis',
+    
+}
+
+
 accessTokenExpiry = datetime.datetime.now() #inital value as a placeholder.
 
 subclassCheckInterval = 10 #default value, overriden by config
@@ -116,6 +137,8 @@ def subclass_checker():
     responseCharacterEquipmentRaw = requests.get("https://www.bungie.net/Platform/Destiny2/"+destinyMembershipType+"/Profile/"+destinyMembershipID+"/Character/"+mostRecentCharacter+"?components=CharacterEquipment", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
     responseCharacterEquipment = responseCharacterEquipmentRaw.json()
     
+
+
     #find subclass among inventory
     subclassHash =""
     for item in responseCharacterEquipment['Response']['equipment']['data']['items']:
@@ -123,9 +146,19 @@ def subclass_checker():
         if item['bucketHash'] == 3284755031:
             subclassHash = item['itemHash']  # InventoryBucket "Subclass" hash = 328755031
     
-    os.system(config['commands']['subclasses'][subclassDict[subclassHash]]) 
+    
+    
+    if config['perElementNotSubclass'] == True:
+        os.system(config['commands']['elements'][elementDict[subclassHash]])
+    else:
+        os.system(config['commands']['subclasses'][subclassDict[subclassHash]])
+   
+    
+
 
 ### End of methods ###
+
+
 
 ### main execution flow below ###
 
