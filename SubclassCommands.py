@@ -5,6 +5,7 @@ import threading
 import datetime
 import json
 import os
+import subprocess
 
 #don't be a jerk and abuse the fact that these needed to be included.
 #if you're going to make your own variant, for example based on rarity of equipped weapons, I ask that you register your own Application with Bungie, and use your own values here.
@@ -246,7 +247,15 @@ while True:
     if datetime.datetime.now() > accessTokenExpiry:
         renew_access_token()
 
-    subclass_checker()
+    if config['onlyWhileDestinyRunning']:        
+        if "destiny2.exe" in str(subprocess.check_output('tasklist', shell=True)):
+            subclass_checker()  
+        else:
+            print("destiny2.exe not running.")
+    else:
+        subclass_checker()
+    
+    
     time.sleep(subclassCheckInterval)
 
 

@@ -2,6 +2,7 @@
     "subclassCheckInterval": 10,
     "perElementNotSubclass":false,
     "defaultBatAndSh": false,
+    "onlyWhileDestinyRunning": false,
     "commands":{
         "elements":{
             "arc":"echo arc",
