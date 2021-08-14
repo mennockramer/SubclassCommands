@@ -6,10 +6,13 @@ import datetime
 import json
 import os
 
-#Application API keys go here, remove for GitHub
+#don't be a jerk and abuse the fact that these needed to be included.
+#if you're going to make your own variant, for example based on rarity of equipped weapons, I ask that you register your own Application with Bungie, and use your own values here.
+#https://www.bungie.net/en/Application <-- here's where you do that, it's surprisingly simple!
 apiKey ='173e93eb88604e8a96a2e4f85d4548ed'
 clientID = "37211"
 clientSecret = "P1KPzCPrNatEekBHvBImxPhnkVCv-lqoCVA7VRCqNGc"
+#if I used the less secure authentication option, pretty sure every API call would need user-inputted authentication. Noone wants that.
 
 accessToken = ""
 refreshToken = ""
@@ -133,21 +136,36 @@ def subclass_checker():
             mostRecentCharacterDatetime = datetime.datetime.strptime(responseCharacters['Response']['characters']['data'][character]['dateLastPlayed'],'%Y-%m-%dT%H:%M:%SZ')
             mostRecentCharacter = str(character)
 
-      
+    
+    #get character's equipment
+    responseCharacterEquipmentRaw = requests.get("https://www.bungie.net/Platform/Destiny2/"+destinyMembershipType+"/Profile/"+destinyMembershipID+"/Character/"+mostRecentCharacter+"?components=CharacterEquipment", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
+    responseCharacterEquipment = responseCharacterEquipmentRaw.json()
+    #get lock state of user's ship
+    shipItemInstanceId =""
+    shipLockState=0
+    for item in responseCharacterEquipment['Response']['equipment']['data']['items']:
+        if item['bucketHash'] == 284967655:  # InventoryBucket Ship hash = 284967655
+            shipItemInstanceId = item['itemInstanceId'] 
+            shipLockState = item['state']
+
+    #set lock state of user's ship to what was just retrieved above
+    shipLockPost = requests.post("https://www.bungie.net/Platform/Destiny2/Actions/Items/SetLockState/", data="{'state': "+str(shipLockState)+", 'itemId': '"+shipItemInstanceId+"', 'characterId': "+mostRecentCharacter+", 'membershipType': "+destinyMembershipType+"}", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
+    
+    #the two above actions "bust the cache" ensuring that the equipment and therefore subclass below are up to date
+
+    #Actual subclass check
+    #get character's equipment
     responseCharacterEquipmentRaw = requests.get("https://www.bungie.net/Platform/Destiny2/"+destinyMembershipType+"/Profile/"+destinyMembershipID+"/Character/"+mostRecentCharacter+"?components=CharacterEquipment", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
     responseCharacterEquipment = responseCharacterEquipmentRaw.json()
     
-
-
     #find subclass among inventory
     subclassHash =""
     for item in responseCharacterEquipment['Response']['equipment']['data']['items']:
-        
-        if item['bucketHash'] == 3284755031:
-            subclassHash = item['itemHash']  # InventoryBucket "Subclass" hash = 328755031
+        if item['bucketHash'] == 3284755031:  # InventoryBucket "Subclass" hash = 328755031
+            subclassHash = item['itemHash'] 
     
     
-    
+    #run corresponding command
     if config['perElementNotSubclass'] == True:
         os.system(config['commands']['elements'][elementDict[subclassHash]])
     else:
@@ -166,10 +184,10 @@ def subclass_checker():
 try:
     configFile = open("SubclassCommandsConfig.json", "r")
     config = json.load(configFile)
-    #print(config)
+   
 
 except FileNotFoundError:
-    print("Config file not found, downloading default from git.")
+    print("Config file not found, copying from default on git.")
    
     defaultConfigFileResponse = requests.get("https://raw.githubusercontent.com/mennockramer/SubclassCommands/main/SubclassCommandsConfig-DEFAULT.json")
     
@@ -179,7 +197,8 @@ except FileNotFoundError:
 
     configFile = open("SubclassCommandsConfig.json", "r")
     config = json.load(configFile)
-    #print(config)
+    
+subclassCheckInterval = config['subclassCheckInterval']
 
 #try to load tokens from file
 try:
@@ -188,16 +207,14 @@ try:
     accessToken = tokenList[0]
     refreshToken = tokenList[1]
 
-    #print("Stored Access Token: "+accessToken)
-    #print("Stored Refresh Token: "+refreshToken)
     renew_access_token()
+
 except FileNotFoundError:
     tokenFile = open("SubclassCommandsTokens.txt", "x")
     print("SubclassCommandsTokens.txt not found, creating a new one")
     new_authentication()
 
-#print("Continuing with AT: "+accessToken)
-#print("Continuing with RT: "+refreshToken)
+
 
 # get destinyMembershipID for the bungieMembershipID
 responseLinkedProfilesRaw = requests.get("https://www.bungie.net/Platform/Destiny2/254/Profile/"+bungieMembershipID+"/LinkedProfiles", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
@@ -216,11 +233,6 @@ for profile in responseLinkedProfiles['Response']['profiles']:
 destinyMembershipID = str(mostRecentProfile['membershipId'])
 destinyMembershipType = str(mostRecentProfile['membershipType'])
 
-
-# while true
-# if AT expired, refresh
-# check subclass
-# sleep
 
 while True:
     if datetime.datetime.now() > accessTokenExpiry:
