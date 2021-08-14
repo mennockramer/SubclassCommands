@@ -1,7 +1,7 @@
 {
     "subclassCheckInterval": 10,
     "perElementNotSubclass":false,
-    "defaultBatOrSh": false,
+    "defaultBatAndSh": false,
     "commands":{
         "elements":{
             "arc":"echo arc",

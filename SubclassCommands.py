@@ -166,11 +166,19 @@ def subclass_checker():
     
     
     #run corresponding command
-    if config['perElementNotSubclass'] == True:
-        os.system(config['commands']['elements'][elementDict[subclassHash]])
+    if config['defaultBatAndSh'] == True:
+        if config['perElementNotSubclass'] == True:
+            os.system(elementDict[subclassHash]+".bat")
+            os.system(elementDict[subclassHash]+".sh")
+        else:
+            os.system(subclassDict[subclassHash]+".bat")
+            os.system(subclassDict[subclassHash]+".sh")
     else:
-        os.system(config['commands']['subclasses'][subclassDict[subclassHash]])
-   
+        if config['perElementNotSubclass'] == True:
+            os.system(config['commands']['elements'][elementDict[subclassHash]])
+        else:
+            os.system(config['commands']['subclasses'][subclassDict[subclassHash]])
+    
     
 
 
