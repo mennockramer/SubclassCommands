@@ -5,6 +5,7 @@ For those who don't have Python installed, a .exe can be found in `/dist`. If yo
 
 
 Config file options:
+- Obviously, the commands to run.
 - Int: "subclassCheckInterval": defaults to 10, how often (in seconds) the program checks the user's subclass in the API.
 - Bool: "perElementNotSubclass": defaults to false, run specified commands for each element OR each subclass (e.g. Revenant/Behemoth/Shadebinder would have separate entries).
 - Bool: "defaultBatAndSh": defaults to false, runs Arc.bat AND Arc.sh (and other elements, or per subclass) in relative root, as an alternative to config-specified commands.
