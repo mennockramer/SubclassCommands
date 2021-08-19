@@ -2,7 +2,7 @@
     "subclassCheckInterval": 10,
     "perElementNotSubclass":false,
     "defaultBatAndSh": false,
-    "onlyWhileDestinyRunning": false,
+    "onlyWhileDestinyRunning": true,
     "commands":{
         "elements":{
             "arc":"echo arc",
@@ -25,6 +25,7 @@
             "dawnblade":"echo dawnblade",
             "voidwalker":"echo voidwalker",
             "shadebinder":"echo shadebinder"
-        }
+        },
+        "error":"echo error"
     }
 }

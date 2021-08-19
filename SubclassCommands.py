@@ -160,7 +160,7 @@ def subclass_checker():
     responseCharacterEquipment = responseCharacterEquipmentRaw.json()
     
     #find subclass among inventory
-    subclassHash =""
+    subclassHash ="error"
     for item in responseCharacterEquipment['Response']['equipment']['data']['items']:
         if item['bucketHash'] == 3284755031:  # InventoryBucket "Subclass" hash = 328755031
             subclassHash = item['itemHash'] 
@@ -168,17 +168,25 @@ def subclass_checker():
     
     #run corresponding command
     if config['defaultBatAndSh'] == True:
-        if config['perElementNotSubclass'] == True:
-            os.system(elementDict[subclassHash]+".bat")
-            os.system(elementDict[subclassHash]+".sh")
-        else:
-            os.system(subclassDict[subclassHash]+".bat")
-            os.system(subclassDict[subclassHash]+".sh")
+        if subclassHash == 'error':   
+            os.system("error.bat")
+            os.system("error.sh")
+        else:      
+            if config['perElementNotSubclass'] == True:
+                os.system(elementDict[subclassHash]+".bat")
+                os.system(elementDict[subclassHash]+".sh")
+            else:
+                os.system(subclassDict[subclassHash]+".bat")
+                os.system(subclassDict[subclassHash]+".sh")
     else:
-        if config['perElementNotSubclass'] == True:
-            os.system(config['commands']['elements'][elementDict[subclassHash]])
+        if subclassHash == 'error':   
+            os.system(config['commands']['error'])
+            
         else:
-            os.system(config['commands']['subclasses'][subclassDict[subclassHash]])
+            if config['perElementNotSubclass'] == True:
+                os.system(config['commands']['elements'][elementDict[subclassHash]])
+            else:
+                os.system(config['commands']['subclasses'][subclassDict[subclassHash]])
     
     
 
