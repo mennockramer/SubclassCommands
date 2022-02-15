@@ -27,12 +27,14 @@ If you are using this to control devices via Razer or SteelSeries software, `sub
 
 
 # Example use cases of command output
-- ~~Changing system RGB to match the subclass ([OpenRGB](https://openrgb.org/) has a CLI and wide compatability).~~ Now supported natively! *only via OpenRGB and SteelSeries Engine right now, see FAQ
+- ~~Changing system RGB to match the subclass ([OpenRGB](https://openrgb.org/) has a CLI and wide compatability).~~ Now supported natively! *only via OpenRGB ~~and SteelSeries Engine~~ right now, see FAQ
 - Changing music? I don't know, I made it for the above.
 
 
 # FAQ
 ## Why don't you support:
+
+- SteelSeries Engine: Well, as far as I can tell, it *should* work, but the game events don't execute despite returning Code 200
 
 - Corsair/iCue devices: Corsair's way of integrating other programs is more of a closed ecosystem, designed for the developers of the program (in this case Bungie), not for third parties (in this case me).
 
