@@ -1,8 +1,45 @@
 {
     "subclassCheckInterval": 10,
     "perElementNotSubclass":false,
-    "defaultBatAndSh": false,
     "onlyWhileDestinyRunning": true,
+
+    "useRGBPrograms": true,
+    "RGBPrograms":{
+        "useAura": true,
+        "useOpenRGB": true,
+        "OpenRGBPath": "",
+        "useRazer": true,
+        "useSteelSeries": true
+        
+    },
+    "colourHexes":{
+        "elements":{
+            "arc":"7AECF3",
+            "solar":"F0631E",
+            "void":"B185DF",
+            "stasis":"4D88FF"
+        },
+        "subclasses":{
+            "striker":"7AECF3",
+            "sunbreaker":"F0631E",
+            "sentinel":"B185DF",
+            "behemoth":"4D88FF",
+        
+            "arcstrider":"7AECF3",
+            "gunslinger":"F0631E",
+            "nightstalker":"B185DF",
+            "revenant":"4D88FF",
+            
+            "stormcaller":"7AECF3",
+            "dawnblade":"F0631E",
+            "voidwalker":"B185DF",
+            "shadebinder":"4D88FF"
+        },
+        "error":"FF0000"
+    },
+
+    "useCommands": true,
+    "defaultBatAndSh": false,
     "commands":{
         "elements":{
             "arc":"echo arc",

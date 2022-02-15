@@ -5,3 +5,4 @@ SubclassCommandsConfig.json
 __pycache__/
 build/
 SubclassCommands.spec
+TestingSnippet.py
