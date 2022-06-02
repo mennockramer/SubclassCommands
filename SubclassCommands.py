@@ -38,17 +38,17 @@ destinyMembershipType = ""
 subclassDict = {
     
     2958378809:'striker',
-    3105935002:'sunbreaker',
+    2550323932:'sunbreaker',
     2842471112:'sentinel',
     613647804:'behemoth',
 
     1334959255:'arcstrider',
-    3635991036:'gunslinger',
+    2240888816:'gunslinger',
     2453351420:'nightstalker',
     873720784:'revenant',
     
     1751782730:'stormcaller',
-    3481861797:'dawnblade',
+    3941205951:'dawnblade',
     2849050827:'voidwalker',
     3291545503:'shadebinder',
 
@@ -57,17 +57,17 @@ subclassDict = {
 elementDict = {
    
     2958378809:'arc',
-    3105935002:'solar',
+    2550323932:'solar',
     2842471112:'void',
     613647804:'stasis',
 
     1334959255:'arc',
-    3635991036:'solar',
+    2240888816:'solar',
     2453351420:'void',
     873720784:'stasis',
     
     1751782730:'arc',
-    3481861797:'solar',
+    3941205951:'solar',
     2849050827:'void',
     3291545503:'stasis',
     
