@@ -37,17 +37,17 @@ destinyMembershipType = ""
 
 subclassDict = {
     
-    2958378809:'striker',
+    2932390016:'striker',
     2550323932:'sunbreaker',
     2842471112:'sentinel',
     613647804:'behemoth',
 
-    1334959255:'arcstrider',
+    2328211300:'arcstrider',
     2240888816:'gunslinger',
     2453351420:'nightstalker',
     873720784:'revenant',
     
-    1751782730:'stormcaller',
+    3168997075:'stormcaller',
     3941205951:'dawnblade',
     2849050827:'voidwalker',
     3291545503:'shadebinder',
