@@ -17,23 +17,27 @@
             "arc":"7AECF3",
             "solar":"F0631E",
             "void":"B185DF",
-            "stasis":"4D88FF"
+            "stasis":"4D88FF",
+            "strand":"00FF00"
         },
         "subclasses":{
             "striker":"7AECF3",
             "sunbreaker":"F0631E",
             "sentinel":"B185DF",
             "behemoth":"4D88FF",
+            "tyrant":"00FF00",
         
             "arcstrider":"7AECF3",
             "gunslinger":"F0631E",
             "nightstalker":"B185DF",
             "revenant":"4D88FF",
+            "threadrunner":"00FF00",
             
             "stormcaller":"7AECF3",
             "dawnblade":"F0631E",
             "voidwalker":"B185DF",
-            "shadebinder":"4D88FF"
+            "shadebinder":"4D88FF",
+            "architect":"00FF00"
         },
         "error":"FF0000"
     },
@@ -45,23 +49,27 @@
             "arc":"echo arc",
             "solar":"echo solar",
             "void":"echo void",
-            "stasis":"echo stasis"
+            "stasis":"echo stasis",
+            "strand":"echo strand"
         },
         "subclasses":{
             "striker":"echo striker",
             "sunbreaker":"echo sunbreaker",
             "sentinel":"echo sentinel",
             "behemoth":"echo behemoth",
+            "tyrant":"echo tyrant",
         
             "arcstrider":"echo arcstrider",
             "gunslinger":"echo gunslinger",
             "nightstalker":"echo nightstalker",
             "revenant":"echo revenant",
+            "threadrunner":"echo threadrunner",
             
             "stormcaller":"echo stormcalller",
             "dawnblade":"echo dawnblade",
             "voidwalker":"echo voidwalker",
-            "shadebinder":"echo shadebinder"
+            "shadebinder":"echo shadebinder",
+            "architect":"echo architect"
         },
         "error":"echo error"
     }
