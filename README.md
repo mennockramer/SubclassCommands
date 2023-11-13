@@ -1,8 +1,6 @@
 # SubclassCommands
 Changes RGB lighting or executes user-specified commands based on their currently equipped Destiny 2 subclass.
 
-For those who don't have Python installed, a .exe can be found in `/dist`. If you don't trust that, but still want an .exe, use PyInstaller like I did.
-
 Note: if you are using this program with SteelSeries Engine, this must be started **after** SteelSeries Engine, as Engine generates a new API port on boot.
 
 # Config file options
@@ -40,7 +38,7 @@ If you are using this to control devices via Razer or SteelSeries software, `sub
 
 - MSI: Mystic Light doesn't have a way to interact with it via Python AFAIK. SteelSeries Engine, however, has integration with Mystic Light, and this has integration with SteelSeries Engine, so you'll need that as a middleman.
 
-- ASUS/RoG: With Armoury Crate installed, the code in the Python tutorial changed the lghting, but it reverted after a second. The RESTful API, well it seems like the port wasn't opened by AURA. If someone knows how to make this work, please tell me.
+- ASUS/RoG: With Armoury Crate installed, the code in the Python tutorial changed the lighting, but it reverted after a second. The RESTful API, well it seems like the port wasn't opened by AURA. If someone knows how to make this work, please tell me.
 
 - Razer: Outdated documentation means I can't send the correct initialisation packet. Waiting on info from Razer Support.
 
