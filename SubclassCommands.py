@@ -238,9 +238,8 @@ def subclass_checker():
                     
                 else:
                     if config['perElementNotSubclass'] == True:
-                        testRaw = requests.post("http://"+steelSeriesAddress+"/game_event", data =json.dumps({"game": "SUBCLASSCOMMANDS", "event": elementDict[subclassHash].upper(), "data": {"value": 1}}), headers={'Content-type': 'application/json'}, verify=False)
-                        test = testRaw.json()
-                        print(test)    
+                        requests.post("http://"+steelSeriesAddress+"/game_event", data =json.dumps({"game": "SUBCLASSCOMMANDS", "event": elementDict[subclassHash].upper(), "data": {"value": 1}}), headers={'Content-type': 'application/json'}, verify=False)
+
                     else:
                         requests.post("http://"+steelSeriesAddress+"/game_event", data =json.dumps({"game": "SUBCLASSCOMMANDS", "event": subclassDict[subclassHash].upper(), "data": {"value": 1}}), headers={'Content-type': 'application/json'}, verify=False)
                         
@@ -452,6 +451,7 @@ if config['useRGBPrograms'] == True:
                 print("SteelSeries Engine is not available for Linux, skipping.")
 
             if steelSeriesAddress != "":
+                print("SteelSeries Address found: "+steelSeriesAddress)
                   
                 print("Posting metadata to SteelSeries Engine for user-friendliness")
                 requests.post("http://"+steelSeriesAddress+"/game_metadata", data=json.dumps({ "game":"SUBCLASSCOMMANDS", "game_display_name": "SubclassCommands for Destiny 2", "developer": "Menno Kramer", 'deinitialize_timer_length_ms': 60000}), headers={'Content-type': 'application/json'})

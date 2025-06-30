@@ -32,8 +32,6 @@ If you are using this to control devices via Razer or SteelSeries software, `sub
 # FAQ
 ## Why don't you support:
 
-- SteelSeries Engine: Well, as far as I can tell, it *should* work, but the game events don't execute despite returning Code 200
-
 - Corsair/iCue devices: Corsair's way of integrating other programs is more of a closed ecosystem, designed for the developers of the program (in this case Bungie), not for third parties (in this case me).
 
 - MSI: Mystic Light doesn't have a way to interact with it via Python AFAIK. SteelSeries Engine, however, has integration with Mystic Light, and this has integration with SteelSeries Engine, so you'll need that as a middleman.
