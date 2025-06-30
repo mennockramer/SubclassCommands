@@ -86,6 +86,7 @@ elementDict = {
 }
 
 accessTokenExpiry = datetime.datetime.now() #inital value as a placeholder.
+mostRecentResponseMintedTimestamp = datetime.datetime.now() - datetime.timedelta(days=1) #inital value as a placeholder.
 
 subclassCheckInterval = 10 #default value, overriden by config
 
@@ -165,110 +166,104 @@ def subclass_checker():
     
     responseCharactersRaw = requests.get("https://www.bungie.net/Platform/Destiny2/"+destinyMembershipType+"/Profile/"+destinyMembershipID+"/?components=Characters", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
     responseCharacters = responseCharactersRaw.json()
-    
-    # determine most recent character
-    mostRecentCharacterDatetime = datetime.datetime.fromtimestamp(0)
-    mostRecentCharacter =""
-    for character in responseCharacters['Response']['characters']['data']:
-        if datetime.datetime.strptime(responseCharacters['Response']['characters']['data'][character]['dateLastPlayed'],'%Y-%m-%dT%H:%M:%SZ') > mostRecentCharacterDatetime:
-            mostRecentCharacterDatetime = datetime.datetime.strptime(responseCharacters['Response']['characters']['data'][character]['dateLastPlayed'],'%Y-%m-%dT%H:%M:%SZ')
-            mostRecentCharacter = str(character)
+ 
+    currentResponseMintedTimestamp = datetime.datetime.fromisoformat(responseCharacters['Response']['responseMintedTimestamp'][:19])
 
-    
-    #get character's equipment
-    responseCharacterEquipmentRaw = requests.get("https://www.bungie.net/Platform/Destiny2/"+destinyMembershipType+"/Profile/"+destinyMembershipID+"/Character/"+mostRecentCharacter+"?components=CharacterEquipment", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
-    responseCharacterEquipment = responseCharacterEquipmentRaw.json()
-    #get lock state of user's ship
-    shipItemInstanceId =""
-    shipLockState=0
-    for item in responseCharacterEquipment['Response']['equipment']['data']['items']:
-        if item['bucketHash'] == 284967655:  # InventoryBucket Ship hash = 284967655
-            shipItemInstanceId = item['itemInstanceId'] 
-            shipLockState = item['state']
+    global mostRecentResponseMintedTimestamp
+    if currentResponseMintedTimestamp > mostRecentResponseMintedTimestamp:
+        mostRecentResponseMintedTimestamp = currentResponseMintedTimestamp
 
-    #set lock state of user's ship to what was just retrieved above
-    shipLockPost = requests.post("https://www.bungie.net/Platform/Destiny2/Actions/Items/SetLockState/", data="{'state': "+str(shipLockState)+", 'itemId': '"+shipItemInstanceId+"', 'characterId': "+mostRecentCharacter+", 'membershipType': "+destinyMembershipType+"}", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
-    
-    #the two above actions "bust the cache" ensuring that the equipment and therefore subclass below are up to date (most of the time, it's still janky in orbit? broken entirely?)
+        # determine most recent character
+        mostRecentCharacterDatetime = datetime.datetime.fromtimestamp(0)
+        mostRecentCharacter =""
+        for character in responseCharacters['Response']['characters']['data']:
+            if datetime.datetime.strptime(responseCharacters['Response']['characters']['data'][character]['dateLastPlayed'],'%Y-%m-%dT%H:%M:%SZ') > mostRecentCharacterDatetime:
+                mostRecentCharacterDatetime = datetime.datetime.strptime(responseCharacters['Response']['characters']['data'][character]['dateLastPlayed'],'%Y-%m-%dT%H:%M:%SZ')
+                mostRecentCharacter = str(character)
 
-    #Actual subclass check
-    #get character's equipment
-    responseCharacterEquipmentRaw = requests.get("https://www.bungie.net/Platform/Destiny2/"+destinyMembershipType+"/Profile/"+destinyMembershipID+"/Character/"+mostRecentCharacter+"?components=CharacterEquipment", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
-    responseCharacterEquipment = responseCharacterEquipmentRaw.json()
-    
-    #find subclass among inventory
-    subclassHash ="error"
-    for item in responseCharacterEquipment['Response']['equipment']['data']['items']:
-        if item['bucketHash'] == 3284755031:  # InventoryBucket "Subclass" hash = 328755031
-            subclassHash = item['itemHash'] 
-    
-    #change colours via enabled RGB programs
-    if config['useRGBPrograms'] == True:
-        # if config['RGBPrograms']['useAura'] == True:
-
-        #     if subclassHash == 'error':   
-        #         requests.post("http://localhost:27339/AuraSDK/AuraDevice", data= {"data" : {"range" : "all", "color" : HexRGBtoBGRInt(config['colourHexes']['error']) ,"apply": "true" },})    
-                
-        #     else:
-        #         if config['perElementNotSubclass'] == True:
-        #             requests.post("http://localhost:27339/AuraSDK/AuraDevice", data= {"data" : { "range" : "all", "color" : HexRGBtoBGRInt(config['colourHexes']['elements'][elementDict[subclassHash]]),"apply": "true",}})
-        #         else:
-        #             requests.post("http://localhost:27339/AuraSDK/AuraDevice", data= {"data" : { "range" : "all", "color" : HexRGBtoBGRInt(config['colourHexes']['subclasses'][subclassDict[subclassHash]]),"apply": "true",}})
-
-
-
-        if config['RGBPrograms']['useOpenRGB'] == True:
-            if OpenRGBPath != "":
-                if subclassHash == 'error':   
-                    os.system(OpenRGBPath+" -c "+config['colourHexes']['error'])
-                    
-                else:
-                    if config['perElementNotSubclass'] == True:
-                        os.system(OpenRGBPath+" -c "+config['colourHexes']['elements'][elementDict[subclassHash]])
-                    else:
-                        os.system(OpenRGBPath+" -c "+config['colourHexes']['subclasses'][subclassDict[subclassHash]])
-
-        #if config['RGBPrograms']['useRazer'] == True:
-            #print("Razer support NYI")
         
-        if config['RGBPrograms']['useSteelSeries'] == True:
-            if steelSeriesAddress != "":
-                if subclassHash == 'error':   
-                    requests.post("http://"+steelSeriesAddress+"/game_event", data =json.dumps({"game": "SUBCLASSCOMMANDS", "event": 'ERROR', "data": {"value": 1}}), headers={'Content-type': 'application/json'}, verify=False)
-                    
-                else:
-                    if config['perElementNotSubclass'] == True:
-                        requests.post("http://"+steelSeriesAddress+"/game_event", data =json.dumps({"game": "SUBCLASSCOMMANDS", "event": elementDict[subclassHash].upper(), "data": {"value": 1}}), headers={'Content-type': 'application/json'}, verify=False)
+        #get character's equipment
+        responseCharacterEquipmentRaw = requests.get("https://www.bungie.net/Platform/Destiny2/"+destinyMembershipType+"/Profile/"+destinyMembershipID+"/Character/"+mostRecentCharacter+"?components=CharacterEquipment", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
+        responseCharacterEquipment = responseCharacterEquipmentRaw.json()
 
-                    else:
-                        requests.post("http://"+steelSeriesAddress+"/game_event", data =json.dumps({"game": "SUBCLASSCOMMANDS", "event": subclassDict[subclassHash].upper(), "data": {"value": 1}}), headers={'Content-type': 'application/json'}, verify=False)
+        #Actual subclass check
+        #get character's equipment
+        responseCharacterEquipmentRaw = requests.get("https://www.bungie.net/Platform/Destiny2/"+destinyMembershipType+"/Profile/"+destinyMembershipID+"/Character/"+mostRecentCharacter+"?components=CharacterEquipment", headers = {"X-API-Key":apiKey,"Authorization": "Bearer "+accessToken})
+        responseCharacterEquipment = responseCharacterEquipmentRaw.json()
+        
+        #find subclass among inventory
+        subclassHash ="error"
+        for item in responseCharacterEquipment['Response']['equipment']['data']['items']:
+            if item['bucketHash'] == 3284755031:  # InventoryBucket "Subclass" hash = 328755031
+                subclassHash = item['itemHash'] 
+        
+        #change colours via enabled RGB programs
+        if config['useRGBPrograms'] == True:
+            # if config['RGBPrograms']['useAura'] == True:
+
+            #     if subclassHash == 'error':   
+            #         requests.post("http://localhost:27339/AuraSDK/AuraDevice", data= {"data" : {"range" : "all", "color" : HexRGBtoBGRInt(config['colourHexes']['error']) ,"apply": "true" },})    
+                    
+            #     else:
+            #         if config['perElementNotSubclass'] == True:
+            #             requests.post("http://localhost:27339/AuraSDK/AuraDevice", data= {"data" : { "range" : "all", "color" : HexRGBtoBGRInt(config['colourHexes']['elements'][elementDict[subclassHash]]),"apply": "true",}})
+            #         else:
+            #             requests.post("http://localhost:27339/AuraSDK/AuraDevice", data= {"data" : { "range" : "all", "color" : HexRGBtoBGRInt(config['colourHexes']['subclasses'][subclassDict[subclassHash]]),"apply": "true",}})
+
+
+
+            if config['RGBPrograms']['useOpenRGB'] == True:
+                if OpenRGBPath != "":
+                    if subclassHash == 'error':   
+                        os.system(OpenRGBPath+" -c "+config['colourHexes']['error'])
                         
+                    else:
+                        if config['perElementNotSubclass'] == True:
+                            os.system(OpenRGBPath+" -c "+config['colourHexes']['elements'][elementDict[subclassHash]])
+                        else:
+                            os.system(OpenRGBPath+" -c "+config['colourHexes']['subclasses'][subclassDict[subclassHash]])
+
+            #if config['RGBPrograms']['useRazer'] == True:
+                #print("Razer support NYI")
+            
+            if config['RGBPrograms']['useSteelSeries'] == True:
+                if steelSeriesAddress != "":
+                    if subclassHash == 'error':   
+                        requests.post("http://"+steelSeriesAddress+"/game_event", data =json.dumps({"game": "SUBCLASSCOMMANDS", "event": 'ERROR', "data": {"value": 1}}), headers={'Content-type': 'application/json'}, verify=False)
+                        
+                    else:
+                        if config['perElementNotSubclass'] == True:
+                            requests.post("http://"+steelSeriesAddress+"/game_event", data =json.dumps({"game": "SUBCLASSCOMMANDS", "event": elementDict[subclassHash].upper(), "data": {"value": 1}}), headers={'Content-type': 'application/json'}, verify=False)
+
+                        else:
+                            requests.post("http://"+steelSeriesAddress+"/game_event", data =json.dumps({"game": "SUBCLASSCOMMANDS", "event": subclassDict[subclassHash].upper(), "data": {"value": 1}}), headers={'Content-type': 'application/json'}, verify=False)
+                            
 
 
-    #run corresponding command
-    if config['useCommands'] == True:
-        
-        if config['defaultBatAndSh'] == True:
-            if subclassHash == 'error':   
-                os.system("error.bat")
-                os.system("error.sh")
-            else:      
-                if config['perElementNotSubclass'] == True:
-                    os.system(elementDict[subclassHash]+".bat")
-                    os.system(elementDict[subclassHash]+".sh")
-                else:
-                    os.system(subclassDict[subclassHash]+".bat")
-                    os.system(subclassDict[subclassHash]+".sh")
-        else:
-            if subclassHash == 'error':   
-                os.system(config['commands']['error'])
-                
+        #run corresponding command
+        if config['useCommands'] == True:
+            
+            if config['defaultBatAndSh'] == True:
+                if subclassHash == 'error':   
+                    os.system("error.bat")
+                    os.system("error.sh")
+                else:      
+                    if config['perElementNotSubclass'] == True:
+                        os.system(elementDict[subclassHash]+".bat")
+                        os.system(elementDict[subclassHash]+".sh")
+                    else:
+                        os.system(subclassDict[subclassHash]+".bat")
+                        os.system(subclassDict[subclassHash]+".sh")
             else:
-                if config['perElementNotSubclass'] == True:
-                    os.system(config['commands']['elements'][elementDict[subclassHash]])
+                if subclassHash == 'error':   
+                    os.system(config['commands']['error'])
+                    
                 else:
-                    os.system(config['commands']['subclasses'][subclassDict[subclassHash]])
-     
+                    if config['perElementNotSubclass'] == True:
+                        os.system(config['commands']['elements'][elementDict[subclassHash]])
+                    else:
+                        os.system(config['commands']['subclasses'][subclassDict[subclassHash]])
+        
     
 def HexRGBtoBGRInt(hex):
     #converts Hex RGB codes (eg FF00FF) to BGR ints 
