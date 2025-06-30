@@ -2,7 +2,7 @@
 from pickle import TRUE
 import sys
 import requests
-import webview
+import webview #minimum of 4.0 for window events format
 import time
 import threading
 import datetime
@@ -96,7 +96,12 @@ tokenUrl = "https://www.bungie.net/Platform/App/OAuth/Token/"
 def auth_code_watcher(window):
     while True:
         authWindowURL = window.get_current_url()
-        if "https://dummypage/?code=" in authWindowURL:
+        if authWindowURL is None:
+            #happens when auth window is closed
+            print("Authentication Window has no URL, most likely from it being closed. Exiting.")
+            sys.exit(1)
+            
+        elif "https://dummypage/?code=" in authWindowURL:
             global authCode
             authCode = authWindowURL.replace("https://dummypage/?code=","")
             
@@ -105,11 +110,18 @@ def auth_code_watcher(window):
             time.sleep(0.5)
 
     window.destroy()
+
+def authentication_window_closed():
+    print("Authentication Window closed by user.")
+   
+    
      
 def new_authentication():
    
     #creates and starts a browser window for user input for authentication
-    authWindow = webview.create_window('Bungie Authentication', 'https://www.bungie.net/en/OAuth/Authorize?client_id='+clientID+'&response_type=code')
+    authWindow = webview.create_window('Bungie Authentication for Subclass Commands', 'https://www.bungie.net/en/OAuth/Authorize?client_id='+clientID+'&response_type=code')
+    authWindow.events.closed += authentication_window_closed
+    
     webview.start(func=auth_code_watcher, args=authWindow)
 
 
@@ -313,6 +325,9 @@ try:
 except FileNotFoundError:
     tokenFile = open("SubclassCommandsTokens.txt", "x")
     print("SubclassCommandsTokens.txt not found, creating a new one")
+    new_authentication()
+except IndexError:
+    print("SubclassCommandsTokens.txt empty, reauthenticating")
     new_authentication()
 
 
