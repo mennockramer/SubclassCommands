@@ -42,18 +42,21 @@ subclassDict = {
     2842471112:'sentinel',
     613647804:'behemoth',
     242419885:'berserker',
+    1616346845:'prismatic-titan',
 
     2328211300:'arcstrider',
     2240888816:'gunslinger',
     2453351420:'nightstalker',
     873720784:'revenant',
     3785442599:'threadrunner',
+    4282591831:'prismatic-hunter',
     
     3168997075:'stormcaller',
     3941205951:'dawnblade',
     2849050827:'voidwalker',
     3291545503:'shadebinder',
     4204413574:'broodweaver',
+    3893112950:'prismatic-warlock'
 
 }
 
@@ -64,18 +67,21 @@ elementDict = {
     2842471112:'void',
     613647804:'stasis',
     242419885:'strand',
+    1616346845:'prismatic',
 
     2328211300:'arc',
     2240888816:'solar',
     2453351420:'void',
     873720784:'stasis',
     3785442599:'strand',
+    4282591831:'prismatic',
     
     3168997075:'arc',
     3941205951:'solar',
     2849050827:'void',
     3291545503:'stasis',
     4204413574:'strand',
+    3893112950:'prismatic'
     
 }
 

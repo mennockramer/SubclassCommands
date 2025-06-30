@@ -65,6 +65,10 @@ From elemental icon images in the Bungie API, as used in DIM.
 
 [Stasis 4D88FF](https://www.bungie.net/common/destiny2_content/icons/DestinyDamageTypeDefinition_530c4c3e7981dc2aefd24fd3293482bf.png)
 
+[Strand 35E366](https://www.bungie.net/common/destiny2_content/icons/DestinyDamageTypeDefinition_b2fe51a94f3533f97079dfa0d27a4096.png)
+
+Prismatic 9A457F is from the background image DIM uses for the Prismatic subclass before it lays the super icon on top.
+
 And pure red FF0000 just made sense as an error colour to me.
 
 
